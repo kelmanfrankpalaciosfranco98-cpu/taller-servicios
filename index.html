@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taller de Motos - Kelman</title>
+    <title>MOTO CENTER VILLA HERMOSA - Control de Taller</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Ajustes críticos para que no salga en blanco */
@@ -47,14 +47,14 @@
                            <input type="number" id="precio" placeholder="Total a pagar" required class="w-full bg-gray-700 p-3 pl-8 rounded border-none text-white">
                         </div>
                         <textarea id="trabajo" placeholder="Descripción del trabajo..." required class="w-full bg-gray-700 p-3 rounded border-none h-24 text-white"></textarea>
-                        <button type="submit" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-lg hover:bg-yellow-400">REGISTRAR SERVICIO</button>
+                        <button type="submit" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-lg hover:bg-yellow-400 transition">REGISTRAR SERVICIO</button>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-2">
                 <div class="mb-4">
-                    <input type="text" id="buscador" onkeyup="buscarServicio()" placeholder="🔍 Buscar por placa o cliente..." class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white">
+                    <input type="text" id="buscador" onkeyup="buscarServicio()" placeholder="🔍 Buscar por placa o cliente..." class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white shadow-md">
                 </div>
                 <div id="listaHistorial" class="space-y-4"></div>
             </div>
@@ -123,8 +123,12 @@
                             <p class="text-2xl font-black text-green-400 uppercase">Q${s.precio}</p>
                         </div>
                         <div class="flex flex-col gap-2 w-full">
-                            <button onclick="imprimirTicket(${s.id})" class="bg-blue-600 text-white text-xs py-2 px-3 rounded font-bold">🖨️ IMPRIMIR</button>
-                            <button onclick="eliminar(${s.id})" class="text-red-500 text-[10px] text-center underline">Borrar</button>
+                            <button onclick="imprimirTicket(${s.id})" class="bg-blue-600 hover:bg-blue-500 text-white text-xs py-2 px-3 rounded flex items-center justify-center gap-1 font-bold">
+                                🖨️ IMPRIMIR
+                            </button>
+                            <button onclick="eliminar(${s.id})" class="text-red-500 hover:text-red-300 text-[10px] text-center underline">
+                                Borrar registro
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -137,32 +141,32 @@
             const ticketArea = document.getElementById('ticket-imprimir');
             
             ticketArea.innerHTML = `
-                <div style="width: 280px; margin: 0 auto; padding: 10px; border: 2px solid black; color: black !important;">
+                <div style="width: 280px; margin: 0 auto; padding: 10px; border: 2px solid black; color: black !important; background: white !important;">
                     <center>
-                        <h1 style="margin: 0; font-size: 22px;">TALLER KELMAN</h1>
-                        <p style="margin: 0; font-size: 12px;">Mantenimiento de Motocicletas</p>
-                        <p style="margin: 5px 0; font-size: 14px;">------------------------------</p>
+                        <h1 style="margin: 0; font-size: 19px; font-weight: bold; line-height: 1.1;">MOTO CENTER<br>VILLA HERMOSA</h1>
+                        <p style="margin: 3px 0; font-size: 13px;">Taller de servicios</p>
+                        <p style="margin: 5px 0; font-size: 14px; font-weight: bold;">------------------------------</p>
                     </center>
-                    <p style="margin: 5px 0; font-size: 13px;"><strong>FECHA:</strong> ${s.fecha}</p>
-                    <p style="margin: 5px 0; font-size: 13px;"><strong>CLIENTE:</strong> ${s.cliente}</p>
-                    <p style="margin: 5px 0; font-size: 13px;"><strong>TELÉFONO:</strong> ${s.telefono}</p>
-                    <p style="margin: 5px 0; font-size: 13px;"><strong>MOTO:</strong> ${s.moto} [${s.placa}]</p>
-                    <p style="margin: 5px 0; font-size: 14px;">------------------------------</p>
-                    <p style="margin: 5px 0; font-size: 13px;"><strong>TRABAJO:</strong><br>${s.trabajo}</p>
-                    <p style="margin: 5px 0; font-size: 14px;">------------------------------</p>
-                    <p style="margin: 5px 0; font-size: 13px;"><strong>KM ACTUAL:</strong> ${s.km}</p>
-                    <p style="margin: 5px 0; font-size: 14px; background: #eee; padding: 5px;"><strong>PRÓX. CAMBIO: ${s.proximoKm} KM</strong></p>
-                    <p style="margin: 10px 0; font-size: 18px; text-align: right;"><strong>TOTAL: Q${s.precio}</strong></p>
+                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">FECHA:</strong> ${s.fecha}</p>
+                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">CLIENTE:</strong> ${s.cliente}</p>
+                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">TELÉFONO:</strong> ${s.telefono}</p>
+                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">MOTO:</strong> ${s.moto} [${s.placa}]</p>
+                    <p style="margin: 5px 0; font-size: 14px; font-weight: bold;">------------------------------</p>
+                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">TRABAJO:</strong><br>${s.trabajo}</p>
+                    <p style="margin: 5px 0; font-size: 14px; font-weight: bold;">------------------------------</p>
+                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">KM ACTUAL:</strong> ${s.km}</p>
+                    <p style="margin: 6px 0; font-size: 14px; background: #f0f0f0 !important; padding: 5px; color: black !important;"><strong style="color: black !important;">PRÓX. CAMBIO: ${s.proximoKm} KM</strong></p>
+                    <p style="margin: 12px 0 6px 0; font-size: 20px; text-align: right; color: black !important;"><strong style="color: black !important;">TOTAL: Q${s.precio}</strong></p>
                     <center>
-                        <p style="margin-top: 20px; font-size: 11px;">¡Gracias por su confianza!</p>
+                        <p style="margin-top: 25px; font-size: 11px;">¡Gracias por su confianza!</p>
                     </center>
                 </div>
             `;
             
-            // Un pequeño retraso para asegurar que el contenido se cargue antes de imprimir
+            // Pequeño retraso para asegurar que el contenido se cargue antes de imprimir
             setTimeout(() => {
                 window.print();
-            }, 500);
+            }, 600);
         }
 
         function buscarServicio() {
@@ -177,7 +181,7 @@
         }
 
         function eliminar(id) {
-            if(confirm('¿Deseas eliminar este registro?')) {
+            if(confirm('¿Deseas eliminar permanentemente este registro?')) {
                 let datos = JSON.parse(localStorage.getItem('taller_kelman'));
                 datos = datos.filter(d => d.id !== id);
                 localStorage.setItem('taller_kelman', JSON.stringify(datos));
