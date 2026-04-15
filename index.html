@@ -3,20 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOTO CENTER VILLA HERMOSA - Control de Taller</title>
+    <title>MOTOCENTER VILLA HERMOSA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Ajustes críticos para que no salga en blanco */
+        /* Ajuste especial para Impresora Térmica 58mm */
         @media print {
-            @page { margin: 5mm; }
-            body { background: white !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { 
+                margin: 0; 
+                width: 58mm;
+            }
+            body { 
+                background: white !important; 
+                color: black !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
             .no-print { display: none !important; }
             #ticket-imprimir { 
                 display: block !important; 
                 visibility: visible !important;
-                position: static !important;
-                width: 100% !important;
-                color: black !important;
+                width: 55mm !important; /* Un poco menos de 58mm para dejar margen físico */
+                padding: 0;
+                margin: 0;
             }
             * { visibility: hidden; }
             #ticket-imprimir, #ticket-imprimir * { visibility: visible; }
@@ -27,41 +35,41 @@
     <div class="max-w-5xl mx-auto no-print">
         <header class="py-6 border-b border-gray-700 mb-8 flex justify-between items-center text-white">
             <div>
-                <h1 class="text-3xl font-extrabold text-yellow-500">CONTROL DE TALLER 🛠️</h1>
-                <p class="text-gray-400">Gestión de Clientes y Servicios</p>
+                <h1 class="text-3xl font-extrabold text-yellow-500 uppercase">MotoCenter</h1>
+                <p class="text-gray-400 italic">Villa Hermosa</p>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 text-white">
             <div class="lg:col-span-1">
-                <div class="bg-gray-800 p-6 rounded-xl shadow-lg sticky top-4">
-                    <h2 class="text-xl font-bold mb-4 text-white">Nuevo Registro</h2>
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                    <h2 class="text-xl font-bold mb-4">Nuevo Registro</h2>
                     <form id="tallerForm" class="space-y-3">
                         <input type="text" id="cliente" placeholder="Nombre del Cliente" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
                         <input type="tel" id="telefono" placeholder="Teléfono" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
-                        <input type="text" id="moto" placeholder="Moto (Ej: Pulsar NS 200)" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
-                        <input type="text" id="placa" placeholder="Placa / Matrícula" required class="w-full bg-gray-700 p-3 rounded border-none uppercase text-white">
-                        <input type="number" id="km" placeholder="Kilometraje actual" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
+                        <input type="text" id="moto" placeholder="Moto (Pulsar/TVS)" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
+                        <input type="text" id="placa" placeholder="Placa" required class="w-full bg-gray-700 p-3 rounded border-none uppercase text-white">
+                        <input type="number" id="km" placeholder="Km Actual" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
                         <div class="relative">
                            <span class="absolute left-3 top-3 text-gray-400">Q</span>
-                           <input type="number" id="precio" placeholder="Total a pagar" required class="w-full bg-gray-700 p-3 pl-8 rounded border-none text-white">
+                           <input type="number" id="precio" placeholder="Total" required class="w-full bg-gray-700 p-3 pl-8 rounded border-none text-white text-lg font-bold">
                         </div>
-                        <textarea id="trabajo" placeholder="Descripción del trabajo..." required class="w-full bg-gray-700 p-3 rounded border-none h-24 text-white"></textarea>
-                        <button type="submit" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-lg hover:bg-yellow-400 transition">REGISTRAR SERVICIO</button>
+                        <textarea id="trabajo" placeholder="Trabajo realizado..." required class="w-full bg-gray-700 p-3 rounded border-none h-20 text-white"></textarea>
+                        <button type="submit" class="w-full bg-yellow-500 text-black font-black py-4 rounded-xl hover:bg-yellow-400 text-lg uppercase transition-all shadow-lg">Registrar y Guardar</button>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-2">
                 <div class="mb-4">
-                    <input type="text" id="buscador" onkeyup="buscarServicio()" placeholder="🔍 Buscar por placa o cliente..." class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white shadow-md">
+                    <input type="text" id="buscador" onkeyup="buscarServicio()" placeholder="🔍 Buscar por placa o cliente..." class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white shadow-inner">
                 </div>
                 <div id="listaHistorial" class="space-y-4"></div>
             </div>
         </div>
     </div>
 
-    <div id="ticket-imprimir" class="hidden text-black bg-white p-4" style="font-family: Arial, sans-serif;"></div>
+    <div id="ticket-imprimir" class="hidden text-black bg-white" style="font-family: 'Courier New', Courier, monospace; line-height: 1.2;"></div>
 
     <script>
         const form = document.getElementById('tallerForm');
@@ -97,38 +105,34 @@
 
         function renderizar(datos) {
             lista.innerHTML = datos.map(s => `
-                <div class="bg-gray-800 border-l-4 border-yellow-500 p-5 rounded-r-lg shadow-xl flex flex-col md:flex-row justify-between gap-4">
+                <div class="bg-gray-800 border-l-8 border-yellow-500 p-5 rounded-r-xl shadow-lg flex flex-col md:flex-row justify-between gap-4">
                     <div class="flex-1 text-white">
                         <div class="flex items-center gap-2 mb-2">
-                            <span class="bg-yellow-500 text-black text-[10px] font-extrabold px-2 py-0.5 rounded">${s.placa}</span>
-                            <span class="text-[11px] text-gray-500">${s.fecha}</span>
+                            <span class="bg-yellow-500 text-black text-xs font-black px-2 py-0.5 rounded uppercase">${s.placa}</span>
+                            <span class="text-xs text-gray-500 font-mono">${s.fecha}</span>
                         </div>
-                        <h3 class="font-bold text-xl">${s.cliente}</h3>
-                        <p class="text-yellow-400 text-sm mb-2">📞 ${s.telefono} | 🏍️ ${s.moto}</p>
-                        <div class="grid grid-cols-2 gap-2 mb-3">
-                            <div class="bg-gray-900 p-2 rounded text-center">
+                        <h3 class="font-bold text-xl uppercase tracking-tight">${s.cliente}</h3>
+                        <p class="text-yellow-400 text-sm mb-3">📞 ${s.telefono} | 🏍️ ${s.moto}</p>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-gray-900/50 p-2 rounded text-center border border-gray-700">
                                 <p class="text-[10px] text-gray-500 uppercase">Km Actual</p>
-                                <p class="font-bold">${s.km}</p>
+                                <p class="font-bold text-lg">${s.km}</p>
                             </div>
-                            <div class="bg-gray-700 p-2 rounded text-center border border-yellow-600/30">
-                                <p class="text-[10px] text-yellow-500 uppercase font-bold">Próximo Cambio</p>
-                                <p class="font-bold text-yellow-500">${s.proximoKm}</p>
+                            <div class="bg-yellow-500/10 p-2 rounded text-center border border-yellow-500/30">
+                                <p class="text-[10px] text-yellow-500 uppercase font-bold">Próximo</p>
+                                <p class="font-bold text-lg text-yellow-500">${s.proximoKm}</p>
                             </div>
                         </div>
-                        <p class="text-gray-300 bg-gray-900/50 p-3 rounded italic text-sm border-l border-gray-700">"${s.trabajo}"</p>
+                        <p class="text-gray-300 bg-gray-900/40 p-3 rounded italic text-sm border-l border-gray-600">"${s.trabajo}"</p>
                     </div>
-                    <div class="flex flex-col justify-between items-end border-t md:border-t-0 md:border-l border-gray-700 pt-4 md:pt-0 md:pl-4 min-w-[120px]">
-                        <div class="text-right w-full mb-4">
-                            <p class="text-xs text-gray-500 uppercase">Total Cobrado</p>
-                            <p class="text-2xl font-black text-green-400 uppercase">Q${s.precio}</p>
+                    <div class="flex flex-col justify-between items-end md:border-l border-gray-700 md:pl-6 min-w-[140px]">
+                        <div class="text-right w-full">
+                            <p class="text-xs text-gray-500 uppercase font-bold">Total Servicio</p>
+                            <p class="text-3xl font-black text-green-400">Q${s.precio}</p>
                         </div>
-                        <div class="flex flex-col gap-2 w-full">
-                            <button onclick="imprimirTicket(${s.id})" class="bg-blue-600 hover:bg-blue-500 text-white text-xs py-2 px-3 rounded flex items-center justify-center gap-1 font-bold">
-                                🖨️ IMPRIMIR
-                            </button>
-                            <button onclick="eliminar(${s.id})" class="text-red-500 hover:text-red-300 text-[10px] text-center underline">
-                                Borrar registro
-                            </button>
+                        <div class="flex flex-col gap-2 w-full mt-4">
+                            <button onclick="imprimirTicket(${s.id})" class="bg-blue-600 hover:bg-blue-500 text-white text-sm py-3 rounded-lg font-black uppercase shadow-md transition-all active:scale-95">🖨️ IMPRIMIR</button>
+                            <button onclick="eliminar(${s.id})" class="text-red-500 text-[10px] text-center uppercase tracking-widest hover:text-red-400">Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -141,29 +145,34 @@
             const ticketArea = document.getElementById('ticket-imprimir');
             
             ticketArea.innerHTML = `
-                <div style="width: 280px; margin: 0 auto; padding: 10px; border: 2px solid black; color: black !important; background: white !important;">
-                    <center>
-                        <h1 style="margin: 0; font-size: 19px; font-weight: bold; line-height: 1.1;">MOTO CENTER<br>VILLA HERMOSA</h1>
-                        <p style="margin: 3px 0; font-size: 13px;">Taller de servicios</p>
-                        <p style="margin: 5px 0; font-size: 14px; font-weight: bold;">------------------------------</p>
-                    </center>
-                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">FECHA:</strong> ${s.fecha}</p>
-                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">CLIENTE:</strong> ${s.cliente}</p>
-                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">TELÉFONO:</strong> ${s.telefono}</p>
-                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">MOTO:</strong> ${s.moto} [${s.placa}]</p>
-                    <p style="margin: 5px 0; font-size: 14px; font-weight: bold;">------------------------------</p>
-                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">TRABAJO:</strong><br>${s.trabajo}</p>
-                    <p style="margin: 5px 0; font-size: 14px; font-weight: bold;">------------------------------</p>
-                    <p style="margin: 6px 0; font-size: 13px;"><strong style="color: black !important;">KM ACTUAL:</strong> ${s.km}</p>
-                    <p style="margin: 6px 0; font-size: 14px; background: #f0f0f0 !important; padding: 5px; color: black !important;"><strong style="color: black !important;">PRÓX. CAMBIO: ${s.proximoKm} KM</strong></p>
-                    <p style="margin: 12px 0 6px 0; font-size: 20px; text-align: right; color: black !important;"><strong style="color: black !important;">TOTAL: Q${s.precio}</strong></p>
-                    <center>
-                        <p style="margin-top: 25px; font-size: 11px;">¡Gracias por su confianza!</p>
-                    </center>
+                <div style="width: 100%; text-align: center; color: black !important; padding-top: 5px;">
+                    <strong style="font-size: 14px; display: block;">MOTOCENTER</strong>
+                    <strong style="font-size: 14px; display: block;">VILLA HERMOSA</strong>
+                    <span style="font-size: 10px; display: block; margin-bottom: 5px;">Taller de servicios</span>
+                    <span style="display: block; font-size: 10px;">============================</span>
+                </div>
+                <div style="font-size: 11px; padding: 0 2mm; color: black !important;">
+                    <p style="margin: 3px 0;"><strong>FECHA:</strong> ${s.fecha}</p>
+                    <p style="margin: 3px 0;"><strong>CLIENTE:</strong> ${s.cliente}</p>
+                    <p style="margin: 3px 0;"><strong>TEL:</strong> ${s.telefono}</p>
+                    <p style="margin: 3px 0;"><strong>MOTO:</strong> ${s.moto} [${s.placa}]</p>
+                    <span style="display: block; font-size: 10px; text-align: center;">----------------------------</span>
+                    <p style="margin: 3px 0;"><strong>TRABAJO REALIZADO:</strong><br>${s.trabajo}</p>
+                    <span style="display: block; font-size: 10px; text-align: center;">----------------------------</span>
+                    <p style="margin: 3px 0;"><strong>KM ENTRADA:</strong> ${s.km}</p>
+                    <div style="background: #eee !important; border: 1px dashed black; padding: 4px; margin-top: 5px;">
+                        <strong>PROX. CAMBIO: ${s.proximoKm} KM</strong>
+                    </div>
+                    <div style="text-align: right; margin-top: 10px; font-size: 14px;">
+                        <strong>TOTAL: Q${s.precio}</strong>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px; font-size: 9px;">
+                        ¡Gracias por su confianza!<br>Vuelva pronto.
+                    </div>
+                    <div style="margin-top: 10px;">.</div>
                 </div>
             `;
             
-            // Pequeño retraso para asegurar que el contenido se cargue antes de imprimir
             setTimeout(() => {
                 window.print();
             }, 600);
