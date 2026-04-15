@@ -60,7 +60,7 @@
         </div>
     </div>
 
-    <div id="ticket-imprimir" class="hidden text-black bg-white" style="font-family: 'Courier New', Courier, monospace; line-height: 1.2;"></div>
+    <div id="ticket-imprimir" class="hidden text-black bg-white" style="font-family: 'Courier New', Courier, monospace; line-height: 1.1;"></div>
 
     <script>
         const form = document.getElementById('tallerForm');
@@ -72,7 +72,7 @@
             const kmActual = parseInt(document.getElementById('km').value);
             const registro = {
                 id: Date.now(),
-                fecha: new Date().toLocaleString(),
+                fecha: new Date().toLocaleString('es-GT'),
                 cliente: document.getElementById('cliente').value,
                 telefono: document.getElementById('telefono').value,
                 moto: document.getElementById('moto').value,
@@ -122,7 +122,7 @@
                             <p class="text-3xl font-black text-green-400">Q${s.precio}</p>
                         </div>
                         <div class="flex flex-col gap-2 w-full mt-4">
-                            <button onclick="imprimirTicket(${s.id})" class="bg-blue-600 hover:bg-blue-500 text-white text-sm py-3 rounded-lg font-black uppercase shadow-md transition-all">🖨️ IMPRIMIR</button>
+                            <button onclick="imprimirTicket(${s.id})" class="bg-blue-600 hover:bg-blue-500 text-white text-sm py-3 rounded-lg font-black uppercase transition-all">🖨️ IMPRIMIR</button>
                             <button onclick="eliminar(${s.id})" class="text-red-500 text-[10px] text-center uppercase tracking-widest hover:text-red-400">Eliminar</button>
                         </div>
                     </div>
@@ -135,28 +135,32 @@
             const s = datos.find(d => d.id === id);
             const ticketArea = document.getElementById('ticket-imprimir');
             
+            // Forzamos a que los números se vean como texto simple sin separadores de miles
+            const proximoKmStr = s.proximoKm.toString();
+            const kmEntradaStr = s.km.toString();
+
             ticketArea.innerHTML = `
                 <div style="width: 100%; text-align: center; color: black !important; padding-top: 5px;">
                     <strong style="font-size: 16px; display: block;">MOTOCENTER</strong>
                     <strong style="font-size: 16px; display: block;">VILLA HERMOSA</strong>
                     <span style="font-size: 11px; display: block; margin-top: 2px;">Taller de servicios</span>
-                    <span style="font-size: 11px; display: block; font-weight: bold;">Tel: 4088-4597 / 4718-1430</span>
+                    <span style="font-size: 11px; display: block; font-weight: bold;">Tel:4088-4597 / 4718-1430</span>
                     <span style="display: block; font-size: 10px;">============================</span>
                 </div>
                 <div style="font-size: 11px; padding: 0 2mm; color: black !important;">
-                    <p style="margin: 4px 0;"><strong>FECHA:</strong> ${s.fecha}</p>
-                    <p style="margin: 4px 0;"><strong>CLIENTE:</strong> ${s.cliente}</p>
-                    <p style="margin: 4px 0;"><strong>TEL:</strong> ${s.telefono}</p>
-                    <p style="margin: 4px 0;"><strong>MOTO:</strong> ${s.moto} [${s.placa}]</p>
+                    <p style="margin: 3px 0;"><strong>FECHA:</strong> ${s.fecha}</p>
+                    <p style="margin: 3px 0;"><strong>CLIENTE:</strong> ${s.cliente}</p>
+                    <p style="margin: 3px 0;"><strong>TEL:</strong> ${s.telefono}</p>
+                    <p style="margin: 3px 0;"><strong>MOTO:</strong> ${s.moto} [${s.placa}]</p>
                     <span style="display: block; font-size: 10px; text-align: center;">----------------------------</span>
-                    <p style="margin: 4px 0;"><strong>TRABAJO REALIZADO:</strong><br>${s.trabajo}</p>
+                    <p style="margin: 3px 0;"><strong>TRABAJO REALIZADO:</strong><br>${s.trabajo}</p>
                     <span style="display: block; font-size: 10px; text-align: center;">----------------------------</span>
-                    <p style="margin: 4px 0;"><strong>KM ENTRADA:</strong> ${s.km}</p>
-                    <div style="background: #eee !important; border: 1px dashed black; padding: 5px; margin-top: 5px; text-align: center;">
-                        <strong>PROX. CAMBIO: ${s.proximoKm} KM</strong>
+                    <p style="margin: 3px 0;"><strong>KM ENTRADA:</strong> ${kmEntradaStr}</p>
+                    <div style="border: 1px dashed black; padding: 4px; margin-top: 5px; text-align: center;">
+                        <strong>PROX.CAMBIO:${proximoKmStr}KM</strong>
                     </div>
-                    <div style="text-align: right; margin-top: 12px; font-size: 15px;">
-                        <strong>TOTAL: Q${s.precio}</strong>
+                    <div style="text-align: right; margin-top: 10px; font-size: 15px;">
+                        <strong>TOTAL:Q${s.precio}</strong>
                     </div>
                     <div style="text-align: center; margin-top: 15px; font-size: 9px;">
                         ¡Gracias por su confianza!<br>Vuelva pronto.
