@@ -5,9 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taller de Motos - Kelman</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos específicos para la impresión */
+        @media print {
+            body * { visibility: hidden; }
+            #ticket-imprimir, #ticket-imprimir * { visibility: visible; }
+            #ticket-imprimir { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                color: black !important;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen p-4">
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-5xl mx-auto no-print">
         <header class="py-6 border-b border-gray-700 mb-8 flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-extrabold text-yellow-500">CONTROL DE TALLER 🛠️</h1>
@@ -44,6 +59,8 @@
         </div>
     </div>
 
+    <div id="ticket-imprimir" class="hidden p-8 text-black bg-white"></div>
+
     <script>
         const form = document.getElementById('tallerForm');
         const lista = document.getElementById('listaHistorial');
@@ -60,7 +77,7 @@
                 moto: document.getElementById('moto').value,
                 placa: document.getElementById('placa').value.toUpperCase(),
                 km: kmActual,
-                proximoKm: kmActual + 1500, // Suma automática de 1,500 km
+                proximoKm: kmActual + 1500,
                 precio: document.getElementById('precio').value,
                 trabajo: document.getElementById('trabajo').value
             };
@@ -101,16 +118,48 @@
                         <p class="text-gray-300 bg-gray-900/50 p-3 rounded italic text-sm border-l border-gray-700">"${s.trabajo}"</p>
                     </div>
                     <div class="flex flex-col justify-between items-end border-t md:border-t-0 md:border-l border-gray-700 pt-4 md:pt-0 md:pl-4 min-w-[120px]">
-                        <div class="text-right w-full">
+                        <div class="text-right w-full mb-4">
                             <p class="text-xs text-gray-500 uppercase">Total Cobrado</p>
                             <p class="text-2xl font-black text-green-400">Q${s.precio}</p>
                         </div>
-                        <button onclick="eliminar(${s.id})" class="text-red-500 hover:text-red-300 text-xs mt-4 flex items-center gap-1">
-                            🗑️ Borrar registro
-                        </button>
+                        <div class="flex flex-col gap-2 w-full">
+                            <button onclick="imprimirTicket(${s.id})" class="bg-blue-600 hover:bg-blue-500 text-white text-xs py-2 px-3 rounded flex items-center justify-center gap-1 font-bold">
+                                🖨️ Imprimir Ticket
+                            </button>
+                            <button onclick="eliminar(${s.id})" class="text-red-500 hover:text-red-300 text-[10px] text-center underline">
+                                Borrar registro
+                            </button>
+                        </div>
                     </div>
                 </div>
             `).join('');
+        }
+
+        function imprimirTicket(id) {
+            const datos = JSON.parse(localStorage.getItem('taller_kelman'));
+            const s = datos.find(d => d.id === id);
+            const ticketArea = document.getElementById('ticket-imprimir');
+            
+            ticketArea.innerHTML = `
+                <div style="font-family: sans-serif; border: 1px solid #000; padding: 20px; max-width: 300px; margin: auto;">
+                    <h2 style="text-align: center; margin-bottom: 5px;">TALLER KELMAN</h2>
+                    <p style="text-align: center; font-size: 12px; margin-top: 0;">Servicios de Motocicletas</p>
+                    <hr>
+                    <p><strong>Fecha:</strong> ${s.fecha}</p>
+                    <p><strong>Cliente:</strong> ${s.cliente}</p>
+                    <p><strong>Tel:</strong> ${s.telefono}</p>
+                    <p><strong>Moto:</strong> ${s.moto} (${s.placa})</p>
+                    <hr>
+                    <p><strong>Trabajo realizado:</strong><br>${s.trabajo}</p>
+                    <p><strong>Km al servicio:</strong> ${s.km}</p>
+                    <p style="background: #eee; padding: 5px;"><strong>PROX. CAMBIO:</strong> ${s.proximoKm} KM</p>
+                    <hr>
+                    <h3 style="text-align: right;">TOTAL: Q${s.precio}</h3>
+                    <p style="text-align: center; font-size: 10px; margin-top: 20px;">¡Gracias por su confianza!</p>
+                </div>
+            `;
+            
+            window.print();
         }
 
         function buscarServicio() {
@@ -125,7 +174,7 @@
         }
 
         function eliminar(id) {
-            if(confirm('¿Deseas eliminar permanentemente este registro del historial?')) {
+            if(confirm('¿Deseas eliminar permanentemente este registro?')) {
                 let datos = JSON.parse(localStorage.getItem('taller_kelman'));
                 datos = datos.filter(d => d.id !== id);
                 localStorage.setItem('taller_kelman', JSON.stringify(datos));
