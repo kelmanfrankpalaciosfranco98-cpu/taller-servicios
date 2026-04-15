@@ -11,28 +11,33 @@
         <header class="py-6 border-b border-gray-700 mb-8 flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-extrabold text-yellow-500">CONTROL DE TALLER 🛠️</h1>
-                <p class="text-gray-400">Registro de servicios y cambios de aceite</p>
+                <p class="text-gray-400">Gestión de Clientes y Servicios</p>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-1">
                 <div class="bg-gray-800 p-6 rounded-xl shadow-lg sticky top-4">
-                    <h2 class="text-xl font-bold mb-4 text-white">Nuevo Servicio</h2>
-                    <form id="tallerForm" class="space-y-4">
+                    <h2 class="text-xl font-bold mb-4 text-white">Nuevo Registro</h2>
+                    <form id="tallerForm" class="space-y-3">
                         <input type="text" id="cliente" placeholder="Nombre del Cliente" required class="w-full bg-gray-700 p-3 rounded border-none focus:ring-2 focus:ring-yellow-500 text-white">
+                        <input type="tel" id="telefono" placeholder="Teléfono" required class="w-full bg-gray-700 p-3 rounded border-none focus:ring-2 focus:ring-yellow-500 text-white">
                         <input type="text" id="moto" placeholder="Moto (Ej: Pulsar NS 200)" required class="w-full bg-gray-700 p-3 rounded border-none focus:ring-2 focus:ring-yellow-500 text-white">
                         <input type="text" id="placa" placeholder="Placa / Matrícula" required class="w-full bg-gray-700 p-3 rounded border-none focus:ring-2 focus:ring-yellow-500 uppercase text-white">
                         <input type="number" id="km" placeholder="Kilometraje actual" required class="w-full bg-gray-700 p-3 rounded border-none focus:ring-2 focus:ring-yellow-500 text-white">
+                        <div class="relative">
+                           <span class="absolute left-3 top-3 text-gray-400">Q</span>
+                           <input type="number" id="precio" placeholder="Total a pagar" required class="w-full bg-gray-700 p-3 pl-8 rounded border-none focus:ring-2 focus:ring-yellow-500 text-white">
+                        </div>
                         <textarea id="trabajo" placeholder="Descripción del trabajo..." required class="w-full bg-gray-700 p-3 rounded border-none h-24 focus:ring-2 focus:ring-yellow-500 text-white"></textarea>
-                        <button type="submit" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-lg hover:bg-yellow-400 transition">REGISTRAR ENTRADA</button>
+                        <button type="submit" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-lg hover:bg-yellow-400 transition">REGISTRAR SERVICIO</button>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-2">
                 <div class="mb-4">
-                    <input type="text" id="buscador" onkeyup="buscarServicio()" placeholder="🔍 Buscar por placa o cliente..." class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 focus:outline-none text-white">
+                    <input type="text" id="buscador" onkeyup="buscarServicio()" placeholder="🔍 Buscar por placa o cliente..." class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 focus:outline-none text-white shadow-md">
                 </div>
                 <div id="listaHistorial" class="space-y-4"></div>
             </div>
@@ -46,13 +51,17 @@
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+            const kmActual = parseInt(document.getElementById('km').value);
             const registro = {
                 id: Date.now(),
                 fecha: new Date().toLocaleString(),
                 cliente: document.getElementById('cliente').value,
+                telefono: document.getElementById('telefono').value,
                 moto: document.getElementById('moto').value,
                 placa: document.getElementById('placa').value.toUpperCase(),
-                km: document.getElementById('km').value,
+                km: kmActual,
+                proximoKm: kmActual + 1500, // Suma automática de 1,500 km
+                precio: document.getElementById('precio').value,
                 trabajo: document.getElementById('trabajo').value
             };
             const datos = JSON.parse(localStorage.getItem('taller_kelman') || '[]');
@@ -69,18 +78,36 @@
 
         function renderizar(datos) {
             lista.innerHTML = datos.map(s => `
-                <div class="bg-gray-800 border-l-4 border-yellow-500 p-5 rounded-r-lg shadow flex flex-col md:flex-row justify-between gap-4">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded">${s.placa}</span>
-                            <span class="text-xs text-gray-500">${s.fecha}</span>
+                <div class="bg-gray-800 border-l-4 border-yellow-500 p-5 rounded-r-lg shadow-xl flex flex-col md:flex-row justify-between gap-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-yellow-500 text-black text-[10px] font-extrabold px-2 py-0.5 rounded">${s.placa}</span>
+                            <span class="text-[11px] text-gray-500">${s.fecha}</span>
                         </div>
-                        <h3 class="font-bold text-lg text-white">${s.cliente} <span class="text-yellow-200/50 text-sm font-normal">| ${s.moto}</span></h3>
-                        <p class="text-gray-400 text-sm mt-1 font-mono">${s.km} KM</p>
-                        <p class="text-gray-300 mt-2 bg-gray-900/50 p-2 rounded">${s.trabajo}</p>
+                        <h3 class="font-bold text-xl text-white">${s.cliente}</h3>
+                        <p class="text-yellow-400 text-sm mb-2">📞 ${s.telefono} | 🏍️ ${s.moto}</p>
+                        
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div class="bg-gray-900 p-2 rounded text-center">
+                                <p class="text-[10px] text-gray-500 uppercase">Km Actual</p>
+                                <p class="font-bold text-white">${s.km}</p>
+                            </div>
+                            <div class="bg-gray-700 p-2 rounded text-center border border-yellow-600/30">
+                                <p class="text-[10px] text-yellow-500 uppercase font-bold">Próximo Cambio</p>
+                                <p class="font-bold text-yellow-500">${s.proximoKm}</p>
+                            </div>
+                        </div>
+
+                        <p class="text-gray-300 bg-gray-900/50 p-3 rounded italic text-sm border-l border-gray-700">"${s.trabajo}"</p>
                     </div>
-                    <div class="flex items-center">
-                        <button onclick="eliminar(${s.id})" class="text-red-500 hover:text-red-300 text-sm underline">Eliminar</button>
+                    <div class="flex flex-col justify-between items-end border-t md:border-t-0 md:border-l border-gray-700 pt-4 md:pt-0 md:pl-4 min-w-[120px]">
+                        <div class="text-right w-full">
+                            <p class="text-xs text-gray-500 uppercase">Total Cobrado</p>
+                            <p class="text-2xl font-black text-green-400">Q${s.precio}</p>
+                        </div>
+                        <button onclick="eliminar(${s.id})" class="text-red-500 hover:text-red-300 text-xs mt-4 flex items-center gap-1">
+                            🗑️ Borrar registro
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -89,12 +116,16 @@
         function buscarServicio() {
             const filtro = document.getElementById('buscador').value.toUpperCase();
             const datos = JSON.parse(localStorage.getItem('taller_kelman') || '[]');
-            const filtrados = datos.filter(d => d.placa.includes(filtro) || d.cliente.toUpperCase().includes(filtro));
+            const filtrados = datos.filter(d => 
+                d.placa.includes(filtro) || 
+                d.cliente.toUpperCase().includes(filtro) ||
+                d.telefono.includes(filtro)
+            );
             renderizar(filtrados);
         }
 
         function eliminar(id) {
-            if(confirm('¿Borrar este registro?')) {
+            if(confirm('¿Deseas eliminar permanentemente este registro del historial?')) {
                 let datos = JSON.parse(localStorage.getItem('taller_kelman'));
                 datos = datos.filter(d => d.id !== id);
                 localStorage.setItem('taller_kelman', JSON.stringify(datos));
