@@ -14,144 +14,197 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen p-4">
+<body class="bg-gray-900 text-gray-100 min-h-screen p-2 md:p-4">
     <div class="max-w-7xl mx-auto no-print">
-        <header class="py-6 border-b border-gray-700 mb-8 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <div class="bg-blue-600 p-2 rounded-lg text-white font-black text-xl">MC</div>
+        <header class="py-4 border-b border-gray-700 mb-6 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded text-white font-black">MC</div>
                 <div>
-                    <h1 class="text-3xl font-extrabold text-blue-500 uppercase">Cotizaciones</h1>
-                    <p class="text-gray-400">MotoCenter Villa Hermosa</p>
+                    <h1 class="text-xl md:text-2xl font-black text-blue-500 uppercase italic">MotoCenter</h1>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">Villa Hermosa</p>
                 </div>
             </div>
-            <a href="index.html" class="bg-gray-700 hover:bg-gray-600 text-xs py-2 px-4 rounded-lg transition">Ir a Taller</a>
+            <a href="index.html" class="bg-gray-800 text-xs py-2 px-4 rounded-lg">Cerrar</a>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1 text-white">
-                <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
-                    <h2 class="text-xl font-bold mb-4">Nuevo Presupuesto</h2>
-                    <form id="cotizaForm" class="space-y-3">
-                        <input type="text" id="cliente" placeholder="Nombre del Cliente" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
-                        <input type="tel" id="telefono" placeholder="Teléfono del Cliente" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
-                        <input type="text" id="moto" placeholder="Modelo de Moto" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
-                        <div class="relative">
-                           <span class="absolute left-3 top-3 text-gray-400">Q</span>
-                           <input type="number" id="precio" placeholder="Monto estimado" required class="w-full bg-gray-700 p-3 pl-8 rounded border-none text-white text-lg font-bold">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1">
+                <div class="bg-gray-800 p-5 rounded-2xl shadow-2xl border border-gray-700">
+                    <h2 class="text-lg font-bold mb-4 flex justify-between items-center">
+                        Nueva Cotización
+                        <span id="total-vivo" class="text-blue-400 font-mono text-xl">Q0.00</span>
+                    </h2>
+                    
+                    <form id="cotizaForm" class="space-y-4">
+                        <div class="space-y-2">
+                            <input type="text" id="cliente" placeholder="Nombre del Cliente" required class="w-full bg-gray-700 p-3 rounded-xl border-none text-white focus:ring-2 focus:ring-blue-500">
+                            <input type="tel" id="telefono" placeholder="WhatsApp (Ej: 40884597)" required class="w-full bg-gray-700 p-3 rounded-xl border-none text-white">
+                            <input type="text" id="moto" placeholder="Modelo de Moto" required class="w-full bg-gray-700 p-3 rounded-xl border-none text-white">
                         </div>
-                        <textarea id="detalle" placeholder="¿Qué servicios cotiza?" required class="w-full bg-gray-700 p-3 rounded border-none h-32 text-white"></textarea>
-                        <button type="submit" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl hover:bg-blue-500 text-lg uppercase transition-all">Guardar Cotización</button>
+
+                        <div class="border-t border-gray-700 pt-4">
+                            <p class="text-xs text-gray-400 mb-2 font-bold uppercase">Repuestos / Mano de Obra</p>
+                            <div id="contenedor-filas" class="space-y-2">
+                                </div>
+                            <button type="button" onclick="agregarFila()" class="w-full mt-3 bg-gray-700 hover:bg-gray-600 text-blue-400 py-2 rounded-xl text-sm font-bold border border-dashed border-blue-500">
+                                + Agregar Item
+                            </button>
+                        </div>
+
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl text-lg uppercase transition-all shadow-lg shadow-blue-900/20">
+                            Generar Cotización
+                        </button>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-2">
-                <div class="mb-4">
-                    <input type="text" id="buscador" onkeyup="buscar()" placeholder="🔍 Buscar por cliente o moto..." class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white">
-                </div>
-                <div id="listaCotizaciones" class="space-y-4"></div>
+                <input type="text" id="buscador" onkeyup="buscar()" placeholder="🔍 Buscar cliente o moto..." class="w-full bg-gray-800 p-4 rounded-2xl border border-gray-700 text-white mb-4">
+                <div id="listaCotizaciones" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </div>
     </div>
 
-    <div id="hoja-impresion" class="hidden text-black bg-white" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 21cm; min-height: 27cm; margin: auto;">
-        <div style="padding: 20px; border: 1px solid #eee;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <div id="hoja-impresion" class="hidden text-black bg-white" style="font-family: Arial, sans-serif; width: 21cm; min-height: 27cm; margin: auto;">
+        <div style="padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="background-color: #1e40af; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 40px; border-radius: 4px;">MC</div>
+                    <div style="background-color: #1e40af; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 30px; border-radius: 8px;">MC</div>
                     <div>
-                        <h1 style="font-size: 24px; font-weight: 900; color: #1e40af; margin: 0; text-transform: uppercase;">MOTOCENTER VILLA HERMOSA</h1>
-                        <p style="font-size: 13px; color: #666; margin: 0;">Taller de Servicios y Mantenimiento de Motos</p>
-                        <p style="font-size: 13px; font-weight: bold; margin: 0;">Tel: 4088-4597 / 4718-1430</p>
+                        <h1 style="font-size: 22px; font-weight: 900; color: #1e40af; margin: 0; text-transform: uppercase;">MOTOCENTER VILLA HERMOSA</h1>
+                        <p style="font-size: 12px; color: #444; margin: 0;">Servicio Técnico y Repuestos</p>
+                        <p style="font-size: 12px; font-weight: bold; margin: 0;">Tel: 4088-4597 / 4718-1430</p>
                     </div>
                 </div>
-                <div style="text-align: right; background: #f3f4f6; padding: 10px 20px;">
-                    <h2 style="font-size: 18px; font-weight: bold; color: #1e40af; margin: 0;">COTIZACIÓN</h2>
-                    <p id="print-fecha" style="font-size: 12px; margin: 0; color: #555;"></p>
+                <div style="text-align: right; background: #f3f4f6; padding: 10px 15px; border-radius: 5px;">
+                    <h2 style="font-size: 16px; font-weight: bold; color: #1e40af; margin: 0;">COTIZACIÓN</h2>
+                    <p id="print-fecha" style="font-size: 11px; margin: 0; color: #666;"></p>
                 </div>
             </div>
 
-            <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #eee;">
                 <div>
-                    <span style="font-size: 10px; color: #888; text-transform: uppercase;">Cliente:</span>
-                    <p id="print-cliente" style="font-size: 15px; font-weight: bold; margin: 0;"></p>
-                    <p id="print-telefono" style="font-size: 13px; margin: 0;"></p>
+                    <span style="font-size: 9px; color: #888; text-transform: uppercase;">Cliente:</span>
+                    <p id="print-cliente" style="font-size: 14px; font-weight: bold; margin: 0;"></p>
+                    <p id="print-telefono" style="font-size: 12px; margin: 0;"></p>
                 </div>
                 <div>
-                    <span style="font-size: 10px; color: #888; text-transform: uppercase;">Vehículo:</span>
-                    <p id="print-moto" style="font-size: 15px; font-weight: bold; margin: 0;"></p>
+                    <span style="font-size: 9px; color: #888; text-transform: uppercase;">Vehículo:</span>
+                    <p id="print-moto" style="font-size: 14px; font-weight: bold; margin: 0;"></p>
                 </div>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
                 <thead>
                     <tr style="background-color: #1e40af; color: white; text-align: left;">
-                        <th style="padding: 10px; border: 1px solid #1e40af;">DESCRIPCIÓN DE TRABAJOS Y REPUESTOS</th>
-                        <th style="padding: 10px; border: 1px solid #1e40af; text-align: right; width: 140px;">TOTAL (Q)</th>
+                        <th style="padding: 10px; border: 1px solid #1e40af; font-size: 12px;">DESCRIPCIÓN</th>
+                        <th style="padding: 10px; border: 1px solid #1e40af; text-align: right; width: 120px; font-size: 12px;">TOTAL (Q)</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td id="print-detalle" style="padding: 15px; border: 1px solid #ddd; vertical-align: top; min-height: 250px; white-space: pre-wrap; line-height: 1.6;"></td>
-                        <td id="print-total" style="padding: 15px; border: 1px solid #ddd; vertical-align: top; text-align: right; font-weight: bold; font-size: 18px; background-color: #f9fafb;"></td>
+                <tbody id="print-tabla-body">
+                    </tbody>
+                <tfoot>
+                    <tr style="background-color: #f3f4f6;">
+                        <td style="padding: 12px; text-align: right; font-weight: 900; border: 1px solid #ddd; font-size: 14px;">GRAN TOTAL:</td>
+                        <td id="print-gran-total" style="padding: 12px; text-align: right; font-weight: 900; border: 1px solid #ddd; font-size: 16px; color: #1e40af;"></td>
                     </tr>
-                </tbody>
+                </tfoot>
             </table>
 
-            <div style="margin-top: 60px; display: flex; justify-content: space-between; align-items: flex-end;">
-                <div style="width: 200px; text-align: center;">
-                    <div style="border-top: 1px solid #000; padding-top: 5px; font-size: 12px;">Firma MotoCenter</div>
+            <div style="margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div style="width: 180px; text-align: center;">
+                    <div style="border-top: 1px solid #000; padding-top: 5px; font-size: 11px;">Firma de Recibido</div>
                 </div>
                 <div style="text-align: right;">
-                    <p style="font-size: 11px; color: #777;">* Validez de cotización: 8 días.<br>Precios sujetos a cambios.</p>
-                    <p style="font-size: 14px; font-weight: bold; color: #1e40af; margin-top: 5px;">¡Gracias por su preferencia!</p>
+                    <p style="font-size: 10px; color: #777; line-height: 1.4;">* Cotización válida por 8 días.<br>* Precios sujetos a cambios según proveedor.</p>
+                    <p style="font-size: 13px; font-weight: bold; color: #1e40af; margin-top: 5px;">¡Gracias por confiar en nosotros!</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        const contenedor = document.getElementById('contenedor-filas');
         const form = document.getElementById('cotizaForm');
         const lista = document.getElementById('listaCotizaciones');
-        document.addEventListener('DOMContentLoaded', cargar);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            agregarFila(); // Empezar con una fila vacía
+            cargar();
+        });
+
+        function agregarFila() {
+            const div = document.createElement('div');
+            div.className = "flex gap-2 items-center fila-item animate-in fade-in duration-300";
+            div.innerHTML = `
+                <input type="text" placeholder="Repuesto o Servicio" class="desc-input flex-1 bg-gray-700 p-2 rounded-lg text-sm border-none text-white">
+                <input type="number" step="0.01" placeholder="Precio" oninput="calcularTotalVivo()" class="precio-input w-24 bg-gray-700 p-2 rounded-lg text-sm border-none text-white font-bold text-right">
+                <button type="button" onclick="this.parentElement.remove(); calcularTotalVivo()" class="text-red-400 px-2 font-bold">×</button>
+            `;
+            contenedor.appendChild(div);
+        }
+
+        function calcularTotalVivo() {
+            let total = 0;
+            document.querySelectorAll('.precio-input').forEach(input => {
+                total += parseFloat(input.value || 0);
+            });
+            document.getElementById('total-vivo').innerText = `Q${total.toFixed(2)}`;
+            return total;
+        }
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+            const items = [];
+            document.querySelectorAll('.fila-item').forEach(fila => {
+                const desc = fila.querySelector('.desc-input').value;
+                const precio = fila.querySelector('.precio-input').value;
+                if(desc && precio) items.push({ desc, precio: parseFloat(precio) });
+            });
+
+            if(items.length === 0) return alert("Agrega al menos un repuesto o servicio");
+
+            const total = items.reduce((sum, item) => sum + item.precio, 0);
             const registro = {
                 id: Date.now(),
                 fecha: new Date().toLocaleDateString('es-GT'),
                 cliente: document.getElementById('cliente').value,
                 telefono: document.getElementById('telefono').value,
                 moto: document.getElementById('moto').value,
-                precio: document.getElementById('precio').value,
-                detalle: document.getElementById('detalle').value
+                total: total,
+                items: items
             };
-            const datos = JSON.parse(localStorage.getItem('cot_kelman') || '[]');
+
+            const datos = JSON.parse(localStorage.getItem('cot_auto_kelman') || '[]');
             datos.unshift(registro);
-            localStorage.setItem('cot_kelman', JSON.stringify(datos));
+            localStorage.setItem('cot_auto_kelman', JSON.stringify(datos));
+            
             form.reset();
+            contenedor.innerHTML = '';
+            agregarFila();
+            calcularTotalVivo();
             cargar();
         });
 
         function cargar() {
-            const datos = JSON.parse(localStorage.getItem('cot_kelman') || '[]');
+            const datos = JSON.parse(localStorage.getItem('cot_auto_kelman') || '[]');
             renderizar(datos);
         }
 
         function renderizar(datos) {
             lista.innerHTML = datos.map(c => `
-                <div class="bg-gray-800 border-l-4 border-blue-500 p-4 rounded-r-lg flex justify-between items-center">
-                    <div class="text-white">
-                        <p class="text-[10px] text-gray-500">${c.fecha}</p>
-                        <h3 class="font-bold uppercase text-blue-400">${c.cliente}</h3>
-                        <p class="text-xs">🏍️ ${c.moto}</p>
+                <div class="bg-gray-800 p-4 rounded-2xl border-l-4 border-blue-500 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-mono">${c.fecha}</p>
+                        <h3 class="font-bold text-lg text-white truncate">${c.cliente}</h3>
+                        <p class="text-blue-400 text-xs mb-3 font-bold italic">${c.moto}</p>
                     </div>
-                    <div class="flex flex-col items-end gap-2">
-                        <p class="font-bold text-xl text-white">Q${c.precio}</p>
+                    <div class="flex justify-between items-end mt-4">
+                        <p class="text-2xl font-black text-white">Q${c.total.toFixed(2)}</p>
                         <div class="flex gap-2">
-                            <button onclick="imprimir(${c.id})" class="bg-white text-black text-[10px] px-3 py-1 rounded font-bold uppercase">📄 Hoja</button>
-                            <button onclick="enviarWhatsApp(${c.id})" class="bg-green-600 text-white text-[10px] px-3 py-1 rounded font-bold uppercase">💬 WA</button>
-                            <button onclick="eliminar(${c.id})" class="text-red-500 text-[9px] uppercase">X</button>
+                            <button onclick="imprimir(${c.id})" class="bg-blue-600 p-2 rounded-lg text-xs font-bold uppercase">📄 Hoja</button>
+                            <button onclick="enviarWA(${c.id})" class="bg-green-600 p-2 rounded-lg text-xs font-bold uppercase">💬 WA</button>
+                            <button onclick="eliminar(${c.id})" class="bg-gray-700 p-2 rounded-lg text-xs font-bold text-red-400">×</button>
                         </div>
                     </div>
                 </div>
@@ -159,37 +212,46 @@
         }
 
         function imprimir(id) {
-            const datos = JSON.parse(localStorage.getItem('cot_kelman'));
-            const c = datos.find(d => d.id === id);
+            const datos = JSON.parse(localStorage.getItem('cot_auto_kelman'));
+            const c = datos.find(x => x.id === id);
+            
             document.getElementById('print-fecha').innerText = "FECHA: " + c.fecha;
             document.getElementById('print-cliente').innerText = c.cliente;
             document.getElementById('print-telefono').innerText = "Tel: " + c.telefono;
             document.getElementById('print-moto').innerText = c.moto;
-            document.getElementById('print-detalle').innerText = c.detalle;
-            document.getElementById('print-total').innerText = "Q" + c.precio;
+            document.getElementById('print-gran-total').innerText = "Q" + c.total.toFixed(2);
+
+            const body = document.getElementById('print-tabla-body');
+            body.innerHTML = c.items.map(i => `
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ddd; font-size: 13px;">${i.desc}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-size: 13px;">${i.precio.toFixed(2)}</td>
+                </tr>
+            `).join('');
+
             setTimeout(() => { window.print(); }, 200);
         }
 
-        function enviarWhatsApp(id) {
-            const datos = JSON.parse(localStorage.getItem('cot_kelman'));
-            const c = datos.find(d => d.id === id);
-            const msj = `*MOTOCENTER VILLA HERMOSA*%0A*Cotización:* ${c.cliente}%0A*Moto:* ${c.moto}%0A*Detalle:* ${c.detalle.substring(0,100)}...%0A*TOTAL: Q${c.precio}*`;
+        function enviarWA(id) {
+            const c = JSON.parse(localStorage.getItem('cot_auto_kelman')).find(x => x.id === id);
+            let lista = c.items.map(i => `- ${i.desc}: Q${i.precio.toFixed(2)}`).join('%0A');
+            const msj = `*MOTOCENTER VILLA HERMOSA*%0A*Cotización:* ${c.cliente}%0A*Moto:* ${c.moto}%0A---%0A${lista}%0A---%0A*TOTAL: Q${c.total.toFixed(2)}*`;
             window.open(`https://wa.me/502${c.telefono}?text=${msj}`, '_blank');
         }
 
         function buscar() {
-            const f = document.getElementById('buscador').value.toUpperCase();
-            const d = JSON.parse(localStorage.getItem('cot_kelman') || '[]');
-            renderizar(d.filter(x => x.cliente.toUpperCase().includes(f) || x.moto.toUpperCase().includes(f)));
+            const b = document.getElementById('buscador').value.toUpperCase();
+            const d = JSON.parse(localStorage.getItem('cot_auto_kelman') || '[]');
+            renderizar(d.filter(x => x.cliente.toUpperCase().includes(b) || x.moto.toUpperCase().includes(b)));
         }
 
         function eliminar(id) {
-            if(confirm('¿Borrar?')) {
-                let d = JSON.parse(localStorage.getItem('cot_kelman'));
-                localStorage.setItem('cot_kelman', JSON.stringify(d.filter(x => x.id !== id)));
+            if(confirm('¿Eliminar cotización?')) {
+                let d = JSON.parse(localStorage.getItem('cot_auto_kelman'));
+                localStorage.setItem('cot_auto_kelman', JSON.stringify(d.filter(x => x.id !== id)));
                 cargar();
             }
         }
     </script>
 </body>
-</html>
+                            </html>
