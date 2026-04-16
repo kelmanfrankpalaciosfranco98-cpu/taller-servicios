@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COTIZACIONES - MOTOCENTER VILLA HERMOSA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            @page { margin: 0; width: 58mm; }
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            #ticket-imprimir { 
+                display: block !important; 
+                visibility: visible !important;
+                width: 55mm !important;
+                padding: 0;
+                margin: 0;
+            }
+            * { visibility: hidden; }
+            #ticket-imprimir, #ticket-imprimir * { visibility: visible; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4">
+    <div class="max-w-5xl mx-auto no-print">
+        <header class="py-6 border-b border-gray-700 mb-8 flex justify-between items-center text-white">
+            <div>
+                <h1 class="text-3xl font-extrabold text-blue-500">COTIZACIONES 📝</h1>
+                <p class="text-gray-400">MotoCenter Villa Hermosa</p>
+            </div>
+            <a href="index.html" class="bg-gray-700 hover:bg-gray-600 text-xs py-2 px-4 rounded-lg transition">Ir a Taller</a>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 text-white">
+            <div class="lg:col-span-1">
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                    <h2 class="text-xl font-bold mb-4">Nueva Cotización</h2>
+                    <form id="cotizaForm" class="space-y-3">
+                        <input type="text" id="cliente" placeholder="Nombre del Cliente" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
+                        <input type="text" id="moto" placeholder="Modelo de Moto" required class="w-full bg-gray-700 p-3 rounded border-none text-white">
+                        <div class="relative">
+                           <span class="absolute left-3 top-3 text-gray-400">Q</span>
+                           <input type="number" id="precio" placeholder="Monto estimado" required class="w-full bg-gray-700 p-3 pl-8 rounded border-none text-white text-lg font-bold">
+                        </div>
+                        <textarea id="detalle" placeholder="¿Qué repuestos o servicios cotiza?" required class="w-full bg-gray-700 p-3 rounded border-none h-32 text-white"></textarea>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl hover:bg-blue-500 text-lg uppercase transition-all shadow-lg">Guardar Cotización</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="mb-4">
+                    <input type="text" id="buscador" onkeyup="buscar()" placeholder="🔍 Buscar cotización por cliente o moto..." class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white shadow-inner">
+                </div>
+                <div id="listaCotizaciones" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ticket-imprimir" class="hidden text-black bg-white" style="font-family: 'Courier New', Courier, monospace; line-height: 1.1;"></div>
+
+    <script>
+        const form = document.getElementById('cotizaForm');
+        const lista = document.getElementById('listaCotizaciones');
+        document.addEventListener('DOMContentLoaded', cargar);
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const registro = {
+                id: Date.now(),
+                fecha: new Date().toLocaleDateString('es-GT'),
+                cliente: document.getElementById('cliente').value,
+                moto: document.getElementById('moto').value,
+                precio: document.getElementById('precio').value,
+                detalle: document.getElementById('detalle').value
+            };
+            const datos = JSON.parse(localStorage.getItem('cotizaciones_kelman') || '[]');
+            datos.unshift(registro);
+            localStorage.setItem('cotizaciones_kelman', JSON.stringify(datos));
+            form.reset();
+            cargar();
+        });
+
+        function cargar() {
+            const datos = JSON.parse(localStorage.getItem('cotizaciones_kelman') || '[]');
+            renderizar(datos);
+        }
+
+        function renderizar(datos) {
+            lista.innerHTML = datos.map(c => `
+                <div class="bg-gray-800 border-l-8 border-blue-500 p-5 rounded-r-xl shadow-lg flex flex-col md:flex-row justify-between gap-4">
+                    <div class="flex-1 text-white">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs text-gray-500 font-mono">${c.fecha}</span>
+                        </div>
+                        <h3 class="font-bold text-xl uppercase">${c.cliente}</h3>
+                        <p class="text-blue-400 text-sm mb-3">🏍️ Moto: ${c.moto}</p>
+                        <p class="text-gray-300 bg-gray-900/40 p-3 rounded italic text-sm border-l border-gray-600">${c.detalle}</p>
+                    </div>
+                    <div class="flex flex-col justify-between items-end md:border-l border-gray-700 md:pl-6 min-w-[140px]">
+                        <div class="text-right w-full">
+                            <p class="text-xs text-gray-500 uppercase font-bold">Presupuesto</p>
+                            <p class="text-3xl font-black text-blue-400 font-mono">Q${c.precio}</p>
+                        </div>
+                        <div class="flex flex-col gap-2 w-full mt-4">
+                            <button onclick="imprimir(${c.id})" class="bg-blue-600 hover:bg-blue-500 text-white text-sm py-3 rounded-lg font-black uppercase shadow-md">🖨️ IMPRIMIR</button>
+                            <button onclick="eliminar(${c.id})" class="text-red-500 text-[10px] text-center uppercase tracking-widest">Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function imprimir(id) {
+            const datos = JSON.parse(localStorage.getItem('cotizaciones_kelman'));
+            const c = datos.find(d => d.id === id);
+            const ticketArea = document.getElementById('ticket-imprimir');
+            
+            ticketArea.innerHTML = `
+                <div style="width: 100%; text-align: center; color: black !important; padding-top: 5px;">
+                    <strong style="font-size: 16px; display: block;">MOTOCENTER</strong>
+                    <strong style="font-size: 16px; display: block;">VILLA HERMOSA</strong>
+                    <span style="font-size: 12px; display: block; margin-top: 2px; font-weight: bold;">*** COTIZACIÓN ***</span>
+                    <span style="font-size: 10px; display: block;">Tel: 4088-4597 / 4718-1430</span>
+                    <span style="display: block; font-size: 10px;">============================</span>
+                </div>
+                <div style="font-size: 11px; padding: 0 2mm; color: black !important;">
+                    <p style="margin: 4px 0;"><strong>FECHA:</strong> ${c.fecha}</p>
+                    <p style="margin: 4px 0;"><strong>CLIENTE:</strong> ${c.cliente}</p>
+                    <p style="margin: 4px 0;"><strong>MOTO:</strong> ${c.moto}</p>
+                    <span style="display: block; font-size: 10px; text-align: center;">----------------------------</span>
+                    <p style="margin: 4px 0;"><strong>DETALLE DEL PRESUPUESTO:</strong><br>${c.detalle}</p>
+                    <span style="display: block; font-size: 10px; text-align: center;">----------------------------</span>
+                    <div style="text-align: right; margin-top: 10px; font-size: 16px;">
+                        <strong>TOTAL ESTIMADO: Q${c.precio}</strong>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px; font-size: 9px;">
+                        Esta cotización es válida por 8 días.<br>Precios sujetos a cambios.
+                    </div>
+                    <div style="margin-top: 10px;">.</div>
+                </div>
+            `;
+            setTimeout(() => { window.print(); }, 500);
+        }
+
+        function buscar() {
+            const filtro = document.getElementById('buscador').value.toUpperCase();
+            const datos = JSON.parse(localStorage.getItem('cotizaciones_kelman') || '[]');
+            const filtrados = datos.filter(d => 
+                d.cliente.toUpperCase().includes(filtro) || 
+                d.moto.toUpperCase().includes(filtro)
+            );
+            renderizar(filtrados);
+        }
+
+        function eliminar(id) {
+            if(confirm('¿Eliminar esta cotización?')) {
+                let datos = JSON.parse(localStorage.getItem('cotizaciones_kelman'));
+                datos = datos.filter(d => d.id !== id);
+                localStorage.setItem('cotizaciones_kelman', JSON.stringify(datos));
+                cargar();
+            }
+        }
+    </script>
+</body>
+  </html>
